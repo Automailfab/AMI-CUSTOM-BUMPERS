@@ -1,0 +1,121 @@
+.price {
+  color: rgb(var(--color-foreground));
+  font-size: 1.5rem;
+  line-height: calc(1 + 0.2 / var(--font-body-scale));
+  margin: 0;
+}
+
+.price--large {
+  font-size: 1.6rem;
+}
+
+@media screen and (min-width: 750px) {
+  .price--large {
+    font-size: 1.8rem;
+  }
+}
+
+.price__container {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.price__regular {
+  font-size: 1.5rem;
+}
+
+.price__sale {
+  font-size: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  color: rgb(var(--color-foreground));
+}
+
+.price__sale .price-item--sale {
+  color: rgba(var(--color-sale-text));
+  margin-right: 1rem;
+}
+
+.price__sale .price-item--regular {
+  color: rgba(var(--color-foreground), 0.7);
+  font-size: 1.3rem;
+  text-decoration: line-through;
+}
+
+.price-item--sale {
+  color: rgba(var(--color-sale-text));
+}
+
+@media screen and (min-width: 750px) {
+  .price {
+    font-size: 1.6rem;
+  }
+  
+  .price__regular {
+    font-size: 1.6rem;
+  }
+  
+  .price__sale {
+    font-size: 1.6rem;
+  }
+  
+  .price__sale .price-item--regular {
+    font-size: 1.4rem;
+  }
+}
+
+.price--on-sale .price__container {
+  display: flex;
+  flex-direction: row;
+}
+
+.price--show-badge .price__badge-sale {
+  display: inline-block;
+}
+
+.price__badge-sale {
+  align-items: center;
+  background-color: rgb(var(--color-badge-sale-text));
+  border-radius: var(--badge-corner-radius);
+  color: rgb(var(--color-badge-sale-background));
+  display: none;
+  font-size: 1.1rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.1rem;
+  line-height: 1;
+  padding: 0.6rem 1.3rem;
+  text-transform: uppercase;
+  word-break: break-word;
+  z-index: 1;
+}
+
+.price__badge-price {
+  background-color: rgb(var(--color-badge-price-background));
+  color: rgb(var(--color-badge-price-text));
+}
+
+.price__badge-sold-out {
+  background-color: rgb(var(--color-badge-sold-out-background));
+  color: rgb(var(--color-badge-sold-out-text));
+}
+
+.unit-price {
+  color: rgba(var(--color-foreground), 0.7);
+  font-size: 1.2rem;
+  letter-spacing: 0.04rem;
+  line-height: calc(1 + 0.2 / var(--font-body-scale));
+  margin-top: 0.2rem;
+  text-transform: uppercase;
+}
+
+.price .unit-price {
+  margin-top: 0.8rem;
+}
+
+@media screen and (min-width: 750px) {
+  .unit-price {
+    font-size: 1.4rem;
+  }
+}

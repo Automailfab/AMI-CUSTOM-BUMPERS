@@ -1,0 +1,147 @@
+.rte {
+  margin: 0;
+}
+
+.rte > * {
+  margin: 0;
+}
+
+.rte > * + * {
+  margin-top: 1rem;
+}
+
+@media screen and (min-width: 750px) {
+  .rte > * + * {
+    margin-top: 1.5rem;
+  }
+}
+
+.rte h1,
+.rte h2,
+.rte h3,
+.rte h4,
+.rte h5,
+.rte h6 {
+  line-height: calc(1 + 0.3 / max(1, var(--font-body-scale)));
+  word-break: break-word;
+}
+
+.rte a {
+  color: rgb(var(--color-link));
+  text-decoration: underline;
+  text-underline-offset: 0.3rem;
+  text-decoration-thickness: 0.1rem;
+  transition: text-decoration-thickness var(--duration-short) ease;
+}
+
+.rte a:hover {
+  color: rgb(var(--color-link));
+  text-decoration-thickness: 0.2rem;
+}
+
+.rte table {
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin-top: 2rem;
+}
+
+.rte thead th {
+  background-color: rgba(var(--color-foreground), 0.08);
+  color: rgb(var(--color-foreground));
+  font-weight: var(--font-weight-bold);
+  border: 0.1rem solid rgba(var(--color-foreground), 0.2);
+  padding: 1rem;
+  text-align: left;
+}
+
+.rte tbody td {
+  border: 0.1rem solid rgba(var(--color-foreground), 0.2);
+  color: rgb(var(--color-foreground));
+  padding: 1rem;
+}
+
+.rte tbody tr:nth-child(odd) {
+  background-color: rgba(var(--color-foreground), 0.04);
+}
+
+.rte img {
+  height: auto;
+  max-width: 100%;
+  border-radius: var(--border-radius);
+}
+
+.rte ul,
+.rte ol {
+  margin-left: 0;
+  padding-left: 2rem;
+}
+
+.rte li {
+  margin-bottom: 0.5rem;
+}
+
+.rte blockquote {
+  font-style: italic;
+  color: rgba(var(--color-foreground), 0.75);
+  border-left: 0.2rem solid rgba(var(--color-foreground), 0.2);
+  margin-left: 0;
+  padding-left: 1.5rem;
+}
+
+.rte p {
+  margin-bottom: 0;
+}
+
+.rte code {
+  background-color: rgba(var(--color-foreground), 0.08);
+  border-radius: 0.3rem;
+  color: rgb(var(--color-foreground));
+  font-size: 0.9em;
+  padding: 0.2rem 0.4rem;
+}
+
+.rte pre {
+  background-color: rgba(var(--color-foreground), 0.08);
+  border-radius: var(--border-radius);
+  color: rgb(var(--color-foreground));
+  font-size: 0.9em;
+  line-height: 1.5;
+  overflow-x: auto;
+  padding: 1.5rem;
+}
+
+.rte pre code {
+  background-color: transparent;
+  border-radius: 0;
+  color: inherit;
+  font-size: inherit;
+  padding: 0;
+}
+
+.rte--header {
+  color: rgb(var(--color-foreground));
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .rte--header {
+    font-size: 2.4rem;
+  }
+}
+
+.rte--header > * {
+  margin: 0;
+}
+
+.rte--header > * + * {
+  margin-top: 1rem;
+}
+
+@media screen and (min-width: 750px) {
+  .rte--header > * + * {
+    margin-top: 1.5rem;
+  }
+}
