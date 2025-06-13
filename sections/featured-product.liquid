@@ -335,6 +335,10 @@
                   <span class="visually-hidden">{{ product.metafields.reviews.rating_count }} {{ "accessibility.total_reviews" | t }}</span>
                 </p>
               {%- endif -%}
+            {%- when 'metafields' -%}
+              <div {{ block.shopify_attributes }}>
+                {% render 'product-metafields', product: product %}
+              </div>
             {%- endcase -%}
           {%- endfor -%}
         <a{% if product == blank %} role="link" aria-disabled="true"{% else %} href="{{ product.url }}"{% endif %} class="link product__view-details animate-arrow">
@@ -646,6 +650,17 @@
         {
           "type": "paragraph",
           "content": "t:sections.featured-product.blocks.rating.settings.paragraph.content"
+        }
+      ]
+    },
+    {
+      "type": "metafields",
+      "name": "Product Information",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Displays the Model and Placement metafields for the product if they have values."
         }
       ]
     }

@@ -1,0 +1,36 @@
+{% comment %}
+  Displays product metafields for Model and Placement
+  
+  Accepts:
+  - product: {Object} Product object
+  - block_settings: {Object} Block settings (optional)
+  
+  Usage:
+  {% render 'product-metafields', product: product %}
+{% endcomment %}
+
+{%- liquid
+  assign model_metafield = product.metafields.custom.model
+  assign placement_metafield = product.metafields.custom.placement
+  assign has_metafields = false
+  
+  if model_metafield != blank or placement_metafield != blank
+    assign has_metafields = true
+  endif
+-%}
+
+{%- if has_metafields -%}
+  <div class="product__metafields">
+    {%- if model_metafield != blank -%}
+      <p class="product__metafield caption">
+        <strong>Model:</strong> {{ model_metafield | escape }}
+      </p>
+    {%- endif -%}
+    
+    {%- if placement_metafield != blank -%}
+      <p class="product__metafield caption">
+        <strong>Placement:</strong> {{ placement_metafield | escape }}
+      </p>
+    {%- endif -%}
+  </div>
+{%- endif -%}
