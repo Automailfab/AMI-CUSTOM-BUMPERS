@@ -1,0 +1,22 @@
+# Test files
+test-*.html
+test-*.js
+test-*.css
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Build artifacts
+node_modules/
+dist/
+build/

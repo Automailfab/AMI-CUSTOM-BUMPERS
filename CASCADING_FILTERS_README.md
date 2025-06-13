@@ -111,6 +111,20 @@ Add translations in your locale files under `products.cascading_filters`:
 2. Verify CSS is loading properly
 3. Check mobile responsive behavior
 
+## Testing
+
+A test file `test-cascading-filters.html` is provided for local testing. This file:
+- Simulates the filter interface with sample data
+- Tests the cascading dropdown behavior
+- Validates JavaScript functionality without needing Shopify
+
+To test locally:
+1. Open `test-cascading-filters.html` in a browser
+2. Try selecting different Makes to see Models populate
+3. Select Models to see Placements populate
+4. Verify the "Clear All" button works
+5. Check browser console for any JavaScript errors
+
 ## Future Enhancements
 
 The system is designed to be extensible:

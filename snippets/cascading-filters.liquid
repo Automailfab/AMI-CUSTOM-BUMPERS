@@ -55,41 +55,43 @@
 -%}
 
 {%- comment -%} Extract Make, Model, and Placement data from product tags {%- endcomment -%}
-{%- for product in results.products -%}
-  {%- for tag in product.tags -%}
-    {%- if tag contains 'make_' -%}
-      {%- assign make_name = tag | remove: 'make_' -%}
-      {%- unless all_makes contains make_name -%}
-        {%- assign all_makes = all_makes | append: make_name | append: ',' -%}
-      {%- endunless -%}
-    {%- endif -%}
-    
-    {%- if tag contains 'model_' -%}
-      {%- assign model_parts = tag | split: '_' -%}
-      {%- if model_parts.size >= 3 -%}
-        {%- assign model_make = model_parts[1] -%}
-        {%- assign model_name = model_parts[2] -%}
-        {%- assign model_entry = model_make | append: '|' | append: model_name -%}
-        {%- unless all_models contains model_entry -%}
-          {%- assign all_models = all_models | append: model_entry | append: ',' -%}
+{%- if results.products.size > 0 -%}
+  {%- for product in results.products -%}
+    {%- for tag in product.tags -%}
+      {%- if tag contains 'make_' -%}
+        {%- assign make_name = tag | remove: 'make_' -%}
+        {%- unless all_makes contains make_name -%}
+          {%- assign all_makes = all_makes | append: make_name | append: ',' -%}
         {%- endunless -%}
       {%- endif -%}
-    {%- endif -%}
-    
-    {%- if tag contains 'placement_' -%}
-      {%- assign placement_parts = tag | split: '_' -%}
-      {%- if placement_parts.size >= 4 -%}
-        {%- assign placement_make = placement_parts[1] -%}
-        {%- assign placement_model = placement_parts[2] -%}
-        {%- assign placement_name = placement_parts[3] -%}
-        {%- assign placement_entry = placement_make | append: '|' | append: placement_model | append: '|' | append: placement_name -%}
-        {%- unless all_placements contains placement_entry -%}
-          {%- assign all_placements = all_placements | append: placement_entry | append: ',' -%}
-        {%- endunless -%}
+      
+      {%- if tag contains 'model_' -%}
+        {%- assign model_parts = tag | split: '_' -%}
+        {%- if model_parts.size >= 3 -%}
+          {%- assign model_make = model_parts[1] -%}
+          {%- assign model_name = model_parts[2] -%}
+          {%- assign model_entry = model_make | append: '|' | append: model_name -%}
+          {%- unless all_models contains model_entry -%}
+            {%- assign all_models = all_models | append: model_entry | append: ',' -%}
+          {%- endunless -%}
+        {%- endif -%}
       {%- endif -%}
-    {%- endif -%}
+      
+      {%- if tag contains 'placement_' -%}
+        {%- assign placement_parts = tag | split: '_' -%}
+        {%- if placement_parts.size >= 4 -%}
+          {%- assign placement_make = placement_parts[1] -%}
+          {%- assign placement_model = placement_parts[2] -%}
+          {%- assign placement_name = placement_parts[3] -%}
+          {%- assign placement_entry = placement_make | append: '|' | append: placement_model | append: '|' | append: placement_name -%}
+          {%- unless all_placements contains placement_entry -%}
+            {%- assign all_placements = all_placements | append: placement_entry | append: ',' -%}
+          {%- endunless -%}
+        {%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}
   {%- endfor -%}
-{%- endfor -%}
+{%- endif -%}
 
 {%- comment -%} Convert comma-separated strings to arrays {%- endcomment -%}
 {%- assign makes_array = all_makes | split: ',' | uniq | sort -%}
