@@ -1,5 +1,17 @@
 {% comment %}
     Renders facets (filtering and sorting)
+    
+    CUSTOM MODIFICATIONS:
+    - Added custom filters for Make, Model, and Placement
+    - Custom filters extract values from product tags and metafields
+    - Make: extracted from tags with format "Make:value"
+    - Model: extracted from metafields.custom.model (fallback to tags "Model:value") 
+    - Placement: extracted from metafields.custom.placement (fallback to tags "Placement:value")
+    - Custom filters support multi-select and URL-based filtering
+    - Added custom-facets and custom-facets-mobile snippets for filter UI
+    - Added custom-active-facets snippet for active filter buttons
+    - Works with both collection and search pages
+    - Degrades gracefully without JavaScript
 
     Accepts:
     - results: {Object} Collection or Search object

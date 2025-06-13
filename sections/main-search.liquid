@@ -7,6 +7,13 @@
 <noscript>{{ 'component-search.css' | asset_url | stylesheet_tag }}</noscript>
 
 {%- if section.settings.enable_filtering or section.settings.enable_sorting -%}
+  {%- comment -%}
+    Custom Filters Implementation:
+    - Loads component-facets.css for filter styling
+    - Loads facets.js for interactive filtering functionality
+    - The facets snippet now includes custom Make, Model, and Placement filters
+    - These filters work alongside Shopify's built-in filtering system
+  {%- endcomment -%}
   {{ 'component-facets.css' | asset_url | stylesheet_tag }}
   <script src="{{ 'facets.js' | asset_url }}" defer="defer"></script>
 {%- endif -%}
@@ -135,6 +142,15 @@
     {%- if search.filters != empty -%}
       {%- if section.settings.enable_filtering or section.settings.enable_sorting -%}
         <div class="page-width">
+          {%- comment -%}
+            Custom Filters Integration for Search:
+            - The facets snippet now includes custom Make, Model, and Placement filters
+            - These filters extract values from search results (both products and other items)
+            - Make: extracted from tags with format "Make:value" 
+            - Model: extracted from metafields.custom.model (fallback to tags "Model:value")
+            - Placement: extracted from metafields.custom.placement (fallback to tags "Placement:value")
+            - Supports multi-select filtering and works with search terms
+          {%- endcomment -%}
           {% render 'facets', results: search, enable_filtering: section.settings.enable_filtering, enable_sorting: section.settings.enable_sorting, collapse_on_larger_devices: section.settings.collapse_on_larger_devices %}
         </div>
       {%- endif -%}
