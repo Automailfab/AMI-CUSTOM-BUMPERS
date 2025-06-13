@@ -10,8 +10,8 @@
 {% endcomment %}
 
 {%- liquid
-  assign model_metafield = product.metafields.custom.model
-  assign placement_metafield = product.metafields.custom.placement
+  assign model_metafield = product.metafields.custom.model.value
+  assign placement_metafield = product.metafields.custom.placement.value
   assign has_metafields = false
   
   if model_metafield != blank or placement_metafield != blank
