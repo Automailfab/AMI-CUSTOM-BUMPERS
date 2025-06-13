@@ -1,0 +1,113 @@
+/* Vehicle Filters Styles */
+
+.vehicle-filters {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #fafafa;
+}
+
+.vehicle-filters .facets__heading {
+  margin-bottom: 1rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.vehicle-filter .facets__summary {
+  cursor: pointer;
+  padding: 0.5rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.vehicle-filter .facets__display {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+}
+
+.vehicle-filter .facets__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.vehicle-filter .facets__item {
+  margin-bottom: 0.5rem;
+}
+
+.facet-checkbox {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.25rem 0;
+}
+
+.facet-checkbox input[type="checkbox"] {
+  margin-right: 0.5rem;
+  position: relative;
+}
+
+.facet-checkbox .icon-checkmark {
+  display: none;
+  margin-left: -1.6rem;
+  margin-right: 0.5rem;
+  color: #008060;
+}
+
+.facet-checkbox input[type="checkbox"]:checked + svg + .icon-checkmark {
+  display: inline-block;
+}
+
+.clear-vehicle-filters {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #008060;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.clear-vehicle-filters:hover {
+  background-color: #006b4a;
+}
+
+.vehicle-results-count {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.collection-product-count {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Mobile responsive */
+@media screen and (max-width: 749px) {
+  .vehicle-filters {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+  }
+  
+  .vehicle-filter .facets__display {
+    max-height: 150px;
+  }
+}
+
+/* Integration with existing facets */
+.facets-container .vehicle-filters {
+  margin-bottom: 1rem;
+}
+
+/* Hide products that don't match filters */
+.grid__item.hidden {
+  display: none !important;
+}

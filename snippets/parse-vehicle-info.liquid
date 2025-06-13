@@ -1,0 +1,121 @@
+{% comment %}
+  Parses Make, Model, and Year from product title
+  
+  Accepts:
+  - product_title: {String} Product title to parse
+  - namespace: {String} Metafield namespace (default: 'vehicle')
+  
+  Returns variables:
+  - vehicle_make: String
+  - vehicle_model: String  
+  - vehicle_year: String
+  
+  Usage:
+  {% render 'parse-vehicle-info', product_title: product.title %}
+{% endcomment %}
+
+{%- liquid
+  assign namespace = namespace | default: 'vehicle'
+  assign vehicle_make = ''
+  assign vehicle_model = ''
+  assign vehicle_year = ''
+  
+  # Check if metafields exist first, use them if available
+  if product.metafields[namespace].make.value != blank
+    assign vehicle_make = product.metafields[namespace].make.value
+  endif
+  
+  if product.metafields[namespace].model.value != blank
+    assign vehicle_model = product.metafields[namespace].model.value
+  endif
+  
+  if product.metafields[namespace].year.value != blank
+    assign vehicle_year = product.metafields[namespace].year.value
+  endif
+  
+  # If metafields don't exist, parse from title
+  if vehicle_make == blank or vehicle_model == blank or vehicle_year == blank
+    assign title_words = product_title | split: ' '
+    assign year_found = false
+    assign make_found = false
+    assign model_parts = ''
+    
+    # Look for year (4-digit number, typically 1900-2030)
+    for word in title_words
+      assign word_clean = word | replace: '(', '' | replace: ')', '' | replace: ',', '' | replace: '-', ''
+      if word_clean.size == 4
+        assign year_num = word_clean | times: 1
+        if year_num >= 1900 and year_num <= 2030
+          if vehicle_year == blank
+            assign vehicle_year = word_clean
+            assign year_found = true
+          endif
+          continue
+        endif
+      endif
+    endfor
+    
+    # Common vehicle makes (can be extended)
+    assign known_makes = 'Ford,Chevrolet,Chevy,Dodge,Toyota,Honda,Nissan,BMW,Mercedes,Audi,Volkswagen,VW,Hyundai,Kia,Mazda,Subaru,Mitsubishi,Infiniti,Lexus,Acura,Cadillac,Buick,GMC,Ram,Jeep,Chrysler,Lincoln,Volvo,Jaguar,Land Rover,Porsche,Tesla,Genesis,Alfa Romeo'
+    assign makes_array = known_makes | split: ','
+    
+    # Look for make
+    for word in title_words
+      assign word_upper = word | upcase | replace: '(', '' | replace: ')', '' | replace: ',', ''
+      for make in makes_array
+        assign make_upper = make | upcase
+        if word_upper == make_upper
+          if vehicle_make == blank
+            assign vehicle_make = make
+            assign make_found = true
+          endif
+          break
+        endif
+      endfor
+      if make_found
+        break
+      endif
+    endfor
+    
+    # Extract model - everything that's not make or year
+    if vehicle_model == blank
+      assign model_words = ''
+      for word in title_words
+        assign word_clean = word | replace: '(', '' | replace: ')', '' | replace: ',', ''
+        assign is_year = false
+        assign is_make = false
+        
+        # Skip if it's the year
+        if word_clean.size == 4
+          assign year_num = word_clean | times: 1
+          if year_num >= 1900 and year_num <= 2030
+            assign is_year = true
+          endif
+        endif
+        
+        # Skip if it's the make
+        assign word_upper = word_clean | upcase
+        for make in makes_array
+          assign make_upper = make | upcase
+          if word_upper == make_upper
+            assign is_make = true
+            break
+          endif
+        endfor
+        
+        # Add to model if it's not make or year
+        unless is_year or is_make
+          if model_words == blank
+            assign model_words = word_clean
+          else
+            assign model_words = model_words | append: ' ' | append: word_clean
+          endif
+        endunless
+      endfor
+      
+      if model_words != blank
+        assign vehicle_model = model_words
+      endif
+    endif
+  endif
+-%}

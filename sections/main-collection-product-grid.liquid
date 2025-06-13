@@ -22,11 +22,21 @@
 {%- endstyle -%}
 
 <div class="section-{{ section.id }}-padding">
-  {%- if section.settings.enable_filtering or section.settings.enable_sorting -%}
+  {%- if section.settings.enable_filtering or section.settings.enable_sorting or section.settings.enable_vehicle_filtering -%}
     {{ 'component-facets.css' | asset_url | stylesheet_tag }}
+    {%- if section.settings.enable_vehicle_filtering -%}
+      {{ 'vehicle-filters.css' | asset_url | stylesheet_tag }}
+    {%- endif -%}
     <script src="{{ 'facets.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'vehicle-filters.js' | asset_url }}" defer="defer"></script>
   
     <div class="page-width" id="main-collection-filters" data-id="{{ section.id }}">
+      {%- if section.settings.enable_vehicle_filtering -%}
+        <vehicle-filters>
+          {% render 'vehicle-filters', collection: collection %}
+        </vehicle-filters>
+      {%- endif -%}
+      
       {% render 'facets', results: collection, enable_filtering: section.settings.enable_filtering, enable_sorting: section.settings.enable_sorting, collapse_on_larger_devices: section.settings.collapse_on_larger_devices %}
     </div>
   {%- endif -%}
@@ -168,6 +178,13 @@
       "id": "collapse_on_larger_devices",
       "default": false,
       "label": "t:sections.main-collection-product-grid.settings.collapse_on_larger_devices.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_vehicle_filtering",
+      "default": true,
+      "label": "Enable Vehicle Filtering",
+      "info": "Show Make/Model/Year filters based on product titles or metafields"
     },
     {
       "type": "header",

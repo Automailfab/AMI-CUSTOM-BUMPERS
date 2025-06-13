@@ -1,0 +1,180 @@
+{% comment %}
+  Renders vehicle-specific filters (Make, Model, Year)
+  
+  Accepts:
+  - collection: {Object} Collection object
+  - namespace: {String} Metafield namespace (default: 'vehicle')
+  
+  Usage:
+  {% render 'vehicle-filters', collection: collection %}
+{% endcomment %}
+
+{%- liquid
+  assign namespace = namespace | default: 'vehicle'
+  assign makes = ''
+  assign models = '' 
+  assign years = ''
+  assign makes_array = ''
+  assign models_array = ''
+  assign years_array = ''
+-%}
+
+{%- comment -%} Build lists of unique makes, models, years from products {%- endcomment -%}
+{%- for product in collection.products -%}
+  {%- render 'parse-vehicle-info', product_title: product.title -%}
+  
+  {%- if vehicle_make != blank -%}
+    {%- unless makes contains vehicle_make -%}
+      {%- if makes == blank -%}
+        {%- assign makes = vehicle_make -%}
+      {%- else -%}
+        {%- assign makes = makes | append: '|' | append: vehicle_make -%}
+      {%- endif -%}
+    {%- endunless -%}
+  {%- endif -%}
+  
+  {%- if vehicle_model != blank -%}
+    {%- unless models contains vehicle_model -%}
+      {%- if models == blank -%}
+        {%- assign models = vehicle_model -%}
+      {%- else -%}
+        {%- assign models = models | append: '|' | append: vehicle_model -%}
+      {%- endif -%}
+    {%- endunless -%}
+  {%- endif -%}
+  
+  {%- if vehicle_year != blank -%}
+    {%- unless years contains vehicle_year -%}
+      {%- if years == blank -%}
+        {%- assign years = vehicle_year -%}
+      {%- else -%}
+        {%- assign years = years | append: '|' | append: vehicle_year -%}
+      {%- endif -%}
+    {%- endunless -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if makes != blank -%}
+  {%- assign makes_array = makes | split: '|' | sort -%}
+{%- endif -%}
+{%- if models != blank -%}
+  {%- assign models_array = models | split: '|' | sort -%}
+{%- endif -%}
+{%- if years != blank -%}
+  {%- assign years_array = years | split: '|' | sort | reverse -%}
+{%- endif -%}
+
+<div class="vehicle-filters facets__wrapper">
+  <h3 class="facets__heading caption-large text-body">Vehicle Filters</h3>
+  
+  {%- if makes_array.size > 0 -%}
+  <details class="disclosure-has-popup facets__disclosure js-filter vehicle-filter" data-index="make">
+    <summary class="facets__summary caption-large focus-offset">
+      <div>
+        <span>Make</span>
+        {% render 'icon-caret' %}
+      </div>
+    </summary>
+    <div class="facets__display">
+      <ul class="facets__list list-unstyled no-js-hidden" role="list">
+        {%- for make in makes_array -%}
+        <li class="list-menu__item facets__item">
+          <label for="Filter-make-{{ forloop.index }}" class="facet-checkbox">
+            <input 
+              type="checkbox" 
+              name="make" 
+              value="{{ make | escape }}" 
+              id="Filter-make-{{ forloop.index }}"
+              class="vehicle-filter-checkbox"
+              data-filter-type="make"
+            >
+            <svg width="1.6rem" height="1.6rem" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <rect width="16" height="16" stroke="currentColor" fill="none" stroke-width="1"></rect>
+            </svg>
+            <svg class="icon icon-checkmark" width="1.1rem" height="0.7rem" viewBox="0 0 11 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="m1.5 3.5 2.5 2.5 6-6" stroke="currentColor" stroke-width="1.5" fill="none"></path>
+            </svg>
+            <span aria-hidden="true">{{ make }}</span>
+            <span class="visually-hidden">{{ make }}</span>
+          </label>
+        </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  </details>
+  {%- endif -%}
+  
+  {%- if models_array.size > 0 -%}
+  <details class="disclosure-has-popup facets__disclosure js-filter vehicle-filter" data-index="model">
+    <summary class="facets__summary caption-large focus-offset">
+      <div>
+        <span>Model</span>
+        {% render 'icon-caret' %}
+      </div>
+    </summary>
+    <div class="facets__display">
+      <ul class="facets__list list-unstyled no-js-hidden" role="list">
+        {%- for model in models_array -%}
+        <li class="list-menu__item facets__item">
+          <label for="Filter-model-{{ forloop.index }}" class="facet-checkbox">
+            <input 
+              type="checkbox" 
+              name="model" 
+              value="{{ model | escape }}" 
+              id="Filter-model-{{ forloop.index }}"
+              class="vehicle-filter-checkbox"
+              data-filter-type="model"
+            >
+            <svg width="1.6rem" height="1.6rem" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <rect width="16" height="16" stroke="currentColor" fill="none" stroke-width="1"></rect>
+            </svg>
+            <svg class="icon icon-checkmark" width="1.1rem" height="0.7rem" viewBox="0 0 11 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="m1.5 3.5 2.5 2.5 6-6" stroke="currentColor" stroke-width="1.5" fill="none"></path>
+            </svg>
+            <span aria-hidden="true">{{ model }}</span>
+            <span class="visually-hidden">{{ model }}</span>
+          </label>
+        </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  </details>
+  {%- endif -%}
+  
+  {%- if years_array.size > 0 -%}
+  <details class="disclosure-has-popup facets__disclosure js-filter vehicle-filter" data-index="year">
+    <summary class="facets__summary caption-large focus-offset">
+      <div>
+        <span>Year</span>
+        {% render 'icon-caret' %}
+      </div>
+    </summary>
+    <div class="facets__display">
+      <ul class="facets__list list-unstyled no-js-hidden" role="list">
+        {%- for year in years_array -%}
+        <li class="list-menu__item facets__item">
+          <label for="Filter-year-{{ forloop.index }}" class="facet-checkbox">
+            <input 
+              type="checkbox" 
+              name="year" 
+              value="{{ year | escape }}" 
+              id="Filter-year-{{ forloop.index }}"
+              class="vehicle-filter-checkbox"
+              data-filter-type="year"
+            >
+            <svg width="1.6rem" height="1.6rem" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <rect width="16" height="16" stroke="currentColor" fill="none" stroke-width="1"></rect>
+            </svg>
+            <svg class="icon icon-checkmark" width="1.1rem" height="0.7rem" viewBox="0 0 11 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="m1.5 3.5 2.5 2.5 6-6" stroke="currentColor" stroke-width="1.5" fill="none"></path>
+            </svg>
+            <span aria-hidden="true">{{ year }}</span>
+            <span class="visually-hidden">{{ year }}</span>
+          </label>
+        </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  </details>
+  {%- endif -%}
+</div>
