@@ -33,14 +33,14 @@
     assign vehicle_year = product.metafields[namespace].year.value
   endif
   
-  # If metafields don't exist, parse from title
+  {% comment %} If metafields don't exist, parse from title {% endcomment %}
   if vehicle_make == blank or vehicle_model == blank or vehicle_year == blank
     assign title_words = product_title | split: ' '
     assign year_found = false
     assign make_found = false
     assign model_parts = ''
     
-    # Look for year (4-digit number, typically 1900-2030)
+    {% comment %} Look for year (4-digit number, typically 1900-2030) {% endcomment %}
     for word in title_words
       assign word_clean = word | replace: '(', '' | replace: ')', '' | replace: ',', '' | replace: '-', ''
       if word_clean.size == 4
@@ -55,11 +55,11 @@
       endif
     endfor
     
-    # Common vehicle makes (can be extended)
+    {% comment %} Common vehicle makes (can be extended) {% endcomment %}
     assign known_makes = 'Ford,Chevrolet,Chevy,Dodge,Toyota,Honda,Nissan,BMW,Mercedes,Audi,Volkswagen,VW,Hyundai,Kia,Mazda,Subaru,Mitsubishi,Infiniti,Lexus,Acura,Cadillac,Buick,GMC,Ram,Jeep,Chrysler,Lincoln,Volvo,Jaguar,Land Rover,Porsche,Tesla,Genesis,Alfa Romeo'
     assign makes_array = known_makes | split: ','
     
-    # Look for make
+    {% comment %} Look for make {% endcomment %}
     for word in title_words
       assign word_upper = word | upcase | replace: '(', '' | replace: ')', '' | replace: ',', ''
       for make in makes_array
@@ -77,7 +77,7 @@
       endif
     endfor
     
-    # Extract model - everything that's not make or year
+    {% comment %} Extract model - everything that's not make or year {% endcomment %}
     if vehicle_model == blank
       assign model_words = ''
       for word in title_words
@@ -85,7 +85,7 @@
         assign is_year = false
         assign is_make = false
         
-        # Skip if it's the year
+        {% comment %} Skip if it's the year {% endcomment %}
         if word_clean.size == 4
           assign year_num = word_clean | times: 1
           if year_num >= 1900 and year_num <= 2030
@@ -93,7 +93,7 @@
           endif
         endif
         
-        # Skip if it's the make
+        {% comment %} Skip if it's the make {% endcomment %}
         assign word_upper = word_clean | upcase
         for make in makes_array
           assign make_upper = make | upcase
@@ -103,7 +103,7 @@
           endif
         endfor
         
-        # Add to model if it's not make or year
+        {% comment %} Add to model if it's not make or year {% endcomment %}
         unless is_year or is_make
           if model_words == blank
             assign model_words = word_clean

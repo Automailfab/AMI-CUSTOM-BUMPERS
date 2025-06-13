@@ -28,7 +28,9 @@
       {{ 'vehicle-filters.css' | asset_url | stylesheet_tag }}
     {%- endif -%}
     <script src="{{ 'facets.js' | asset_url }}" defer="defer"></script>
-    <script src="{{ 'vehicle-filters.js' | asset_url }}" defer="defer"></script>
+    {%- if section.settings.enable_vehicle_filtering -%}
+      <script src="{{ 'vehicle-filters.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
   
     <div class="page-width" id="main-collection-filters" data-id="{{ section.id }}">
       {%- if section.settings.enable_vehicle_filtering -%}
