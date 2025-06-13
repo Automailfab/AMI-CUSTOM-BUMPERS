@@ -1,0 +1,129 @@
+{%- comment -%}
+  Custom active facets for Make, Model, and Placement filters
+  Shows active filter buttons that can be removed
+  
+  Accepts:
+  - results: {Object} Collection or Search object
+  
+  Usage:
+  {% render 'custom-active-facets', results: collection %}
+{%- endcomment -%}
+
+{%- liquid
+  comment 'Parse current filters from URL parameters'
+  assign current_make_filters = blank
+  assign current_model_filters = blank
+  assign current_placement_filters = blank
+  assign active_filter_values = blank
+  
+  assign url_params = request.query_string | split: '&'
+  for param in url_params
+    if param contains 'filter.tag:Make'
+      assign filter_value = param | split: '=' | last | url_decode
+      assign current_make_filters = current_make_filters | append: filter_value | append: ','
+      assign remove_url = request.path | append: '?' | append: request.query_string | replace: param, '' | replace: '&&', '&' | replace: '&=', '' | strip
+      if remove_url contains '&' == false and remove_url contains '?'
+        assign remove_url = remove_url | replace: '?', ''
+      endif
+      if remove_url == request.path
+        assign remove_url = request.path
+      endif
+      assign active_filter_values = active_filter_values | append: 'Make:' | append: filter_value | append: '|' | append: remove_url | append: '||'
+    elsif param contains 'filter.metafields.custom.model'
+      assign filter_value = param | split: '=' | last | url_decode  
+      assign current_model_filters = current_model_filters | append: filter_value | append: ','
+      assign remove_url = request.path | append: '?' | append: request.query_string | replace: param, '' | replace: '&&', '&' | replace: '&=', '' | strip
+      if remove_url contains '&' == false and remove_url contains '?'
+        assign remove_url = remove_url | replace: '?', ''
+      endif
+      if remove_url == request.path
+        assign remove_url = request.path
+      endif
+      assign active_filter_values = active_filter_values | append: 'Model:' | append: filter_value | append: '|' | append: remove_url | append: '||'
+    elsif param contains 'filter.metafields.custom.placement'
+      assign filter_value = param | split: '=' | last | url_decode
+      assign current_placement_filters = current_placement_filters | append: filter_value | append: ','
+      assign remove_url = request.path | append: '?' | append: request.query_string | replace: param, '' | replace: '&&', '&' | replace: '&=', '' | strip
+      if remove_url contains '&' == false and remove_url contains '?'
+        assign remove_url = remove_url | replace: '?', ''
+      endif
+      if remove_url == request.path
+        assign remove_url = request.path
+      endif
+      assign active_filter_values = active_filter_values | append: 'Placement:' | append: filter_value | append: '|' | append: remove_url | append: '||'
+    elsif param contains 'filter.tag:Model'
+      assign filter_value = param | split: '=' | last | url_decode
+      assign current_model_filters = current_model_filters | append: filter_value | append: ','
+      assign remove_url = request.path | append: '?' | append: request.query_string | replace: param, '' | replace: '&&', '&' | replace: '&=', '' | strip
+      if remove_url contains '&' == false and remove_url contains '?'
+        assign remove_url = remove_url | replace: '?', ''
+      endif
+      if remove_url == request.path
+        assign remove_url = request.path
+      endif
+      assign active_filter_values = active_filter_values | append: 'Model:' | append: filter_value | append: '|' | append: remove_url | append: '||'
+    elsif param contains 'filter.tag:Placement'
+      assign filter_value = param | split: '=' | last | url_decode
+      assign current_placement_filters = current_placement_filters | append: filter_value | append: ','
+      assign remove_url = request.path | append: '?' | append: request.query_string | replace: param, '' | replace: '&&', '&' | replace: '&=', '' | strip
+      if remove_url contains '&' == false and remove_url contains '?'
+        assign remove_url = remove_url | replace: '?', ''
+      endif
+      if remove_url == request.path
+        assign remove_url = request.path
+      endif
+      assign active_filter_values = active_filter_values | append: 'Placement:' | append: filter_value | append: '|' | append: remove_url | append: '||'
+    endif
+  endfor
+  
+  comment 'Split active filter values for rendering'
+  assign active_filters = active_filter_values | split: '||'
+-%}
+
+{%- comment -%} Render active custom filter buttons {%- endcomment -%}
+{%- for active_filter in active_filters -%}
+  {%- if active_filter != blank -%}
+    {%- assign filter_parts = active_filter | split: '|' -%}
+    {%- if filter_parts.size >= 2 -%}
+      {%- assign filter_label = filter_parts[0] -%}
+      {%- assign remove_url = filter_parts[1] -%}
+      
+      <facet-remove>
+        <a href="{{ remove_url }}" class="active-facets__button active-facets__button--light">
+          <span class="active-facets__button-inner button button--tertiary">
+            {{ filter_label | escape }}
+            {% render 'icon-close-small' %}
+            <span class="visually-hidden">{{ 'products.facets.clear_filter' | t }}</span>
+          </span>
+        </a>
+      </facet-remove>
+    {%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- comment -%} Clear all custom filters button {%- endcomment -%}
+{%- if active_filter_values != blank -%}
+  {%- assign clear_all_url = request.path | append: '?' | append: request.query_string -%}
+  {%- assign clear_all_url = clear_all_url | replace: 'filter.tag:Make', '' -%}
+  {%- assign clear_all_url = clear_all_url | replace: 'filter.tag:Model', '' -%}
+  {%- assign clear_all_url = clear_all_url | replace: 'filter.tag:Placement', '' -%}
+  {%- assign clear_all_url = clear_all_url | replace: 'filter.metafields.custom.model', '' -%}
+  {%- assign clear_all_url = clear_all_url | replace: 'filter.metafields.custom.placement', '' -%}
+  {%- assign clear_all_url = clear_all_url | replace: '&&', '&' | replace: '&=', '' | strip -%}
+  {%- if clear_all_url contains '&' == false and clear_all_url contains '?' -%}
+    {%- assign clear_all_url = clear_all_url | replace: '?', '' -%}
+  {%- endif -%}
+  {%- if clear_all_url == request.path -%}
+    {%- assign clear_all_url = request.path -%}
+  {%- endif -%}
+  
+  {%- comment -%} Only show clear all button if we have multiple active custom filters {%- endcomment -%}
+  {%- assign active_count = active_filters.size -%}
+  {%- if active_count > 1 -%}
+    <facet-remove class="active-facets__button-wrapper">
+      <a href="{{ clear_all_url }}" class="active-facets__button-remove underlined-link">
+        <span>{{ 'products.facets.clear_all' | t }}</span>
+      </a>
+    </facet-remove>
+  {%- endif -%}
+{%- endif -%}

@@ -38,6 +38,12 @@
               <h2 class="facets__heading caption-large text-body">{{ 'products.facets.filter_by_label' | t }}</h2>
             {%- endunless -%}
 
+            {%- comment -%}
+              Custom filters for Make, Model, and Placement
+              These filters extract values from product tags and metafields
+            {%- endcomment -%}
+            {% render 'custom-facets', results: results, section_id: section.id %}
+
             {%- for filter in results.filters -%}
               {%- assign total_active_values = total_active_values | plus: filter.active_values.size -%}
               {% case filter.type %}
@@ -167,6 +173,9 @@
           </div>
 
           <div class="active-facets active-facets-desktop">
+            {%- comment -%} Custom active filters for Make, Model, and Placement {%- endcomment -%}
+            {% render 'custom-active-facets', results: results %}
+            
             {%- for filter in results.filters -%}
               {%- for value in filter.active_values -%}
                 <facet-remove>
@@ -293,6 +302,12 @@
               </div>
             </div>
             <div class="mobile-facets__main">
+              {%- comment -%}
+                Custom filters for Make, Model, and Placement
+                These filters extract values from product tags and metafields
+              {%- endcomment -%}
+              {% render 'custom-facets-mobile', results: results, section_id: section.id %}
+              
               {%- for filter in results.filters -%}
                 {% case filter.type %}
                 {% when 'list' %}
@@ -454,6 +469,9 @@
   </menu-drawer>
 
   <div class="active-facets active-facets-mobile {% unless collapse_on_larger_devices %} medium-hide large-up-hide{% endunless %}">
+    {%- comment -%} Custom active filters for Make, Model, and Placement {%- endcomment -%}
+    {% render 'custom-active-facets', results: results %}
+    
     {%- for filter in results.filters -%}
       {%- for value in filter.active_values -%}
         <facet-remove>

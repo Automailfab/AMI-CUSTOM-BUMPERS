@@ -1,0 +1,446 @@
+{%- comment -%}
+  Custom facets for Make, Model, and Placement filters
+  
+  Accepts:
+  - results: {Object} Collection or Search object containing products
+  - section_id: {String} Unique identifier for the section
+  
+  Usage:
+  {% render 'custom-facets', results: collection, section_id: section.id %}
+{%- endcomment -%}
+
+{%- liquid
+  comment 'Initialize arrays to collect unique filter values'
+  assign make_values = blank
+  assign model_values = blank  
+  assign placement_values = blank
+  
+  comment 'Get current filter parameters from URL'
+  assign current_filters = ''
+  if request.query_string contains 'filter.'
+    assign current_filters = request.query_string
+  endif
+  assign current_make_filters = blank
+  assign current_model_filters = blank
+  assign current_placement_filters = blank
+  
+  comment 'Parse current filters from URL parameters'
+  assign url_params = request.query_string | split: '&'
+  for param in url_params
+    if param contains 'filter.tag:Make'
+      assign filter_value = param | split: '=' | last | url_decode
+      assign current_make_filters = current_make_filters | append: filter_value | append: ','
+    elsif param contains 'filter.metafields.custom.model'
+      assign filter_value = param | split: '=' | last | url_decode  
+      assign current_model_filters = current_model_filters | append: filter_value | append: ','
+    elsif param contains 'filter.metafields.custom.placement'
+      assign filter_value = param | split: '=' | last | url_decode
+      assign current_placement_filters = current_placement_filters | append: filter_value | append: ','
+    elsif param contains 'filter.tag:Model'
+      assign filter_value = param | split: '=' | last | url_decode
+      assign current_model_filters = current_model_filters | append: filter_value | append: ','
+    elsif param contains 'filter.tag:Placement'
+      assign filter_value = param | split: '=' | last | url_decode
+      assign current_placement_filters = current_placement_filters | append: filter_value | append: ','
+    endif
+  endfor
+  
+  comment 'Extract unique filter values from all products'
+  assign make_array = blank | split: ','
+  assign model_array = blank | split: ','
+  assign placement_array = blank | split: ','
+  assign make_counts = blank
+  assign model_counts = blank
+  assign placement_counts = blank
+  
+  comment 'Get products from results (works for both collection and search)'
+  if results.products
+    assign products_to_process = results.products
+  elsif results.results
+    assign products_to_process = results.results
+  else
+    assign products_to_process = blank
+  endif
+  
+  comment 'Process each product to extract filter values'
+  for product in products_to_process
+    comment 'Extract Make values from tags'
+    for tag in product.tags
+      if tag contains 'Make:'
+        assign make_value = tag | remove: 'Make:' | strip
+        unless make_array contains make_value
+          assign make_array = make_array | append: make_value | split: ','
+        endunless
+      endif
+    endfor
+    
+    comment 'Extract Model values from metafields first, then tags as fallback'
+    assign model_value = blank
+    if product.metafields.custom.model != blank
+      assign model_value = product.metafields.custom.model.value
+    else
+      for tag in product.tags
+        if tag contains 'Model:'
+          assign model_value = tag | remove: 'Model:' | strip
+          break
+        endif
+      endfor
+    endif
+    if model_value != blank
+      unless model_array contains model_value
+        assign model_array = model_array | append: model_value | split: ','
+      endunless
+    endif
+    
+    comment 'Extract Placement values from metafields first, then tags as fallback'
+    assign placement_value = blank
+    if product.metafields.custom.placement != blank
+      assign placement_value = product.metafields.custom.placement.value
+    else
+      for tag in product.tags
+        if tag contains 'Placement:'
+          assign placement_value = tag | remove: 'Placement:' | strip
+          break
+        endif
+      endfor
+    endif
+    if placement_value != blank
+      unless placement_array contains placement_value
+        assign placement_array = placement_array | append: placement_value | split: ','
+      endunless
+    endif
+  endfor
+  
+  comment 'Sort arrays alphabetically'
+  assign make_array = make_array | sort
+  assign model_array = model_array | sort
+  assign placement_array = placement_array | sort
+-%}
+
+<custom-facets class="custom-facets">
+  {%- comment -%} Make Filter {%- endcomment -%}
+  {%- if make_array.size > 0 -%}
+    <details id="Details-Make-{{ section_id }}" class="disclosure-has-popup facets__disclosure js-filter" data-index="make">
+      <summary class="facets__summary caption-large focus-offset">
+        <div>
+          <span>Make</span>
+          {% render 'icon-caret' %}
+        </div>
+      </summary>
+      <div id="Facet-Make-{{ section_id }}" class="facets__display">
+        <div class="facets__header">
+          {%- assign active_make_count = current_make_filters | split: ',' | size -%}
+          {%- if current_make_filters != blank -%}
+            {%- assign active_make_count = active_make_count | minus: 1 -%}
+          {%- endif -%}
+          <span class="facets__selected no-js-hidden">{{ 'products.facets.filters_selected' | t: count: active_make_count }}</span>
+          <facet-remove>
+            <a href="{{ request.path }}?{{ request.query_string | remove: 'filter.tag:Make' | replace: '&&', '&' | replace: '&=', '' | strip }}" class="facets__reset link underlined-link">
+              {{ 'products.facets.reset' | t }}
+            </a>
+          </facet-remove>
+        </div>
+
+        <ul class="facets__list list-unstyled" role="list">
+          {%- for make_value in make_array -%}
+            {%- if make_value != blank -%}
+              {%- assign filter_param = 'filter.tag:Make:' | append: make_value -%}
+              {%- assign is_active = current_make_filters contains make_value -%}
+              
+              {%- comment -%} Count products matching this make {%- endcomment -%}
+              {%- assign product_count = 0 -%}
+              {%- for product in products_to_process -%}
+                {%- assign product_make = blank -%}
+                {%- for tag in product.tags -%}
+                  {%- if tag contains 'Make:' -%}
+                    {%- assign product_make = tag | remove: 'Make:' | strip -%}
+                    {%- break -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- if product_make == make_value -%}
+                  {%- assign product_count = product_count | plus: 1 -%}
+                {%- endif -%}
+              {%- endfor -%}
+              
+              {%- comment -%} Generate filter URL {%- endcomment -%}
+              {%- if is_active -%}
+                {%- assign filter_url = request.path | append: '?' | append: request.query_string | replace: filter_param, '' | replace: '&&', '&' | replace: '&=', '' | strip -%}
+                {%- if filter_url contains '&' == false and filter_url contains '?' -%}
+                  {%- assign filter_url = filter_url | replace: '?', '' -%}
+                {%- endif -%}
+                {%- if filter_url == request.path -%}
+                  {%- assign filter_url = request.path -%}
+                {%- endif -%}
+              {%- else -%}
+                {%- if request.query_string != blank -%}
+                  {%- assign filter_url = request.path | append: '?' | append: request.query_string | append: '&' | append: filter_param -%}
+                {%- else -%}
+                  {%- assign filter_url = request.path | append: '?' | append: filter_param -%}
+                {%- endif -%}
+              {%- endif -%}
+              
+              <li class="list-menu__item facets__item">
+                <label for="Filter-Make-{{ forloop.index }}-{{ section_id }}" class="facet-checkbox{% if product_count == 0 and is_active == false %} facet-checkbox--disabled{% endif %}">
+                  <input type="checkbox"
+                    name="{{ filter_param }}"
+                    value="{{ make_value | escape }}"
+                    id="Filter-Make-{{ forloop.index }}-{{ section_id }}"
+                    {% if is_active %}checked{% endif %}
+                    {% if product_count == 0 and is_active == false %}disabled{% endif %}
+                    data-filter-url="{{ filter_url }}"
+                  >
+
+                  <svg width="1.6rem" height="1.6rem" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                    <rect width="16" height="16" stroke="currentColor" fill="none" stroke-width="1"></rect>
+                  </svg>
+
+                  <svg class="icon icon-checkmark"
+                    width="1.1rem"
+                    height="0.7rem"
+                    viewBox="0 0 11 7"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1.5 3.5L2.83333 4.75L4.16667 6L9.5 1"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+
+                  {{ make_value | escape }} ({{ product_count }})
+                </label>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    </details>
+  {%- endif -%}
+
+  {%- comment -%} Model Filter {%- endcomment -%}
+  {%- if model_array.size > 0 -%}
+    <details id="Details-Model-{{ section_id }}" class="disclosure-has-popup facets__disclosure js-filter" data-index="model">
+      <summary class="facets__summary caption-large focus-offset">
+        <div>
+          <span>Model</span>
+          {% render 'icon-caret' %}
+        </div>
+      </summary>
+      <div id="Facet-Model-{{ section_id }}" class="facets__display">
+        <div class="facets__header">
+          {%- assign active_model_count = current_model_filters | split: ',' | size -%}
+          {%- if current_model_filters != blank -%}
+            {%- assign active_model_count = active_model_count | minus: 1 -%}
+          {%- endif -%}
+          <span class="facets__selected no-js-hidden">{{ 'products.facets.filters_selected' | t: count: active_model_count }}</span>
+          <facet-remove>
+            <a href="{{ request.path }}?{{ request.query_string | replace: 'filter.metafields.custom.model', '' | replace: 'filter.tag:Model', '' | replace: '&&', '&' | replace: '&=', '' | strip }}" class="facets__reset link underlined-link">
+              {{ 'products.facets.reset' | t }}
+            </a>
+          </facet-remove>
+        </div>
+
+        <ul class="facets__list list-unstyled" role="list">
+          {%- for model_value in model_array -%}
+            {%- if model_value != blank -%}
+              {%- comment -%} Try metafield filter first, fallback to tag filter {%- endcomment -%}
+              {%- assign filter_param = 'filter.metafields.custom.model:' | append: model_value -%}
+              {%- assign is_active = current_model_filters contains model_value -%}
+              
+              {%- comment -%} Count products matching this model {%- endcomment -%}
+              {%- assign product_count = 0 -%}
+              {%- for product in products_to_process -%}
+                {%- assign product_model = blank -%}
+                {%- if product.metafields.custom.model != blank -%}
+                  {%- assign product_model = product.metafields.custom.model.value -%}
+                {%- else -%}
+                  {%- for tag in product.tags -%}
+                    {%- if tag contains 'Model:' -%}
+                      {%- assign product_model = tag | remove: 'Model:' | strip -%}
+                      {%- break -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endif -%}
+                {%- if product_model == model_value -%}
+                  {%- assign product_count = product_count | plus: 1 -%}
+                {%- endif -%}
+              {%- endfor -%}
+              
+              {%- comment -%} Generate filter URL {%- endcomment -%}
+              {%- if is_active -%}
+                {%- assign filter_url = request.path | append: '?' | append: request.query_string | replace: filter_param, '' | replace: '&&', '&' | replace: '&=', '' | strip -%}
+                {%- assign tag_filter_param = 'filter.tag:Model:' | append: model_value -%}
+                {%- assign filter_url = filter_url | replace: tag_filter_param, '' | replace: '&&', '&' | replace: '&=', '' | strip -%}
+                {%- if filter_url contains '&' == false and filter_url contains '?' -%}
+                  {%- assign filter_url = filter_url | replace: '?', '' -%}
+                {%- endif -%}
+                {%- if filter_url == request.path -%}
+                  {%- assign filter_url = request.path -%}
+                {%- endif -%}
+              {%- else -%}
+                {%- if request.query_string != blank -%}
+                  {%- assign filter_url = request.path | append: '?' | append: request.query_string | append: '&' | append: filter_param -%}
+                {%- else -%}
+                  {%- assign filter_url = request.path | append: '?' | append: filter_param -%}
+                {%- endif -%}
+              {%- endif -%}
+              
+              <li class="list-menu__item facets__item">
+                <label for="Filter-Model-{{ forloop.index }}-{{ section_id }}" class="facet-checkbox{% if product_count == 0 and is_active == false %} facet-checkbox--disabled{% endif %}">
+                  <input type="checkbox"
+                    name="{{ filter_param }}"
+                    value="{{ model_value | escape }}"
+                    id="Filter-Model-{{ forloop.index }}-{{ section_id }}"
+                    {% if is_active %}checked{% endif %}
+                    {% if product_count == 0 and is_active == false %}disabled{% endif %}
+                    data-filter-url="{{ filter_url }}"
+                  >
+
+                  <svg width="1.6rem" height="1.6rem" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                    <rect width="16" height="16" stroke="currentColor" fill="none" stroke-width="1"></rect>
+                  </svg>
+
+                  <svg class="icon icon-checkmark"
+                    width="1.1rem"
+                    height="0.7rem"
+                    viewBox="0 0 11 7"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1.5 3.5L2.83333 4.75L4.16667 6L9.5 1"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+
+                  {{ model_value | escape }} ({{ product_count }})
+                </label>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    </details>
+  {%- endif -%}
+
+  {%- comment -%} Placement Filter {%- endcomment -%}
+  {%- if placement_array.size > 0 -%}
+    <details id="Details-Placement-{{ section_id }}" class="disclosure-has-popup facets__disclosure js-filter" data-index="placement">
+      <summary class="facets__summary caption-large focus-offset">
+        <div>
+          <span>Placement</span>
+          {% render 'icon-caret' %}
+        </div>
+      </summary>
+      <div id="Facet-Placement-{{ section_id }}" class="facets__display">
+        <div class="facets__header">
+          {%- assign active_placement_count = current_placement_filters | split: ',' | size -%}
+          {%- if current_placement_filters != blank -%}
+            {%- assign active_placement_count = active_placement_count | minus: 1 -%}
+          {%- endif -%}
+          <span class="facets__selected no-js-hidden">{{ 'products.facets.filters_selected' | t: count: active_placement_count }}</span>
+          <facet-remove>
+            <a href="{{ request.path }}?{{ request.query_string | replace: 'filter.metafields.custom.placement', '' | replace: 'filter.tag:Placement', '' | replace: '&&', '&' | replace: '&=', '' | strip }}" class="facets__reset link underlined-link">
+              {{ 'products.facets.reset' | t }}
+            </a>
+          </facet-remove>
+        </div>
+
+        <ul class="facets__list list-unstyled" role="list">
+          {%- for placement_value in placement_array -%}
+            {%- if placement_value != blank -%}
+              {%- comment -%} Try metafield filter first, fallback to tag filter {%- endcomment -%}
+              {%- assign filter_param = 'filter.metafields.custom.placement:' | append: placement_value -%}
+              {%- assign is_active = current_placement_filters contains placement_value -%}
+              
+              {%- comment -%} Count products matching this placement {%- endcomment -%}
+              {%- assign product_count = 0 -%}
+              {%- for product in products_to_process -%}
+                {%- assign product_placement = blank -%}
+                {%- if product.metafields.custom.placement != blank -%}
+                  {%- assign product_placement = product.metafields.custom.placement.value -%}
+                {%- else -%}
+                  {%- for tag in product.tags -%}
+                    {%- if tag contains 'Placement:' -%}
+                      {%- assign product_placement = tag | remove: 'Placement:' | strip -%}
+                      {%- break -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endif -%}
+                {%- if product_placement == placement_value -%}
+                  {%- assign product_count = product_count | plus: 1 -%}
+                {%- endif -%}
+              {%- endfor -%}
+              
+              {%- comment -%} Generate filter URL {%- endcomment -%}
+              {%- if is_active -%}
+                {%- assign filter_url = request.path | append: '?' | append: request.query_string | replace: filter_param, '' | replace: '&&', '&' | replace: '&=', '' | strip -%}
+                {%- assign tag_filter_param = 'filter.tag:Placement:' | append: placement_value -%}
+                {%- assign filter_url = filter_url | replace: tag_filter_param, '' | replace: '&&', '&' | replace: '&=', '' | strip -%}
+                {%- if filter_url contains '&' == false and filter_url contains '?' -%}
+                  {%- assign filter_url = filter_url | replace: '?', '' -%}
+                {%- endif -%}
+                {%- if filter_url == request.path -%}
+                  {%- assign filter_url = request.path -%}
+                {%- endif -%}
+              {%- else -%}
+                {%- if request.query_string != blank -%}
+                  {%- assign filter_url = request.path | append: '?' | append: request.query_string | append: '&' | append: filter_param -%}
+                {%- else -%}
+                  {%- assign filter_url = request.path | append: '?' | append: filter_param -%}
+                {%- endif -%}
+              {%- endif -%}
+              
+              <li class="list-menu__item facets__item">
+                <label for="Filter-Placement-{{ forloop.index }}-{{ section_id }}" class="facet-checkbox{% if product_count == 0 and is_active == false %} facet-checkbox--disabled{% endif %}">
+                  <input type="checkbox"
+                    name="{{ filter_param }}"
+                    value="{{ placement_value | escape }}"
+                    id="Filter-Placement-{{ forloop.index }}-{{ section_id }}"
+                    {% if is_active %}checked{% endif %}
+                    {% if product_count == 0 and is_active == false %}disabled{% endif %}
+                    data-filter-url="{{ filter_url }}"
+                  >
+
+                  <svg width="1.6rem" height="1.6rem" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                    <rect width="16" height="16" stroke="currentColor" fill="none" stroke-width="1"></rect>
+                  </svg>
+
+                  <svg class="icon icon-checkmark"
+                    width="1.1rem"
+                    height="0.7rem"
+                    viewBox="0 0 11 7"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1.5 3.5L2.83333 4.75L4.16667 6L9.5 1"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+
+                  {{ placement_value | escape }} ({{ product_count }})
+                </label>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    </details>
+  {%- endif -%}
+</custom-facets>
+
+{%- comment -%} JavaScript to handle custom filter clicks {%- endcomment -%}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle custom filter checkbox clicks
+  document.querySelectorAll('.custom-facets input[type="checkbox"]').forEach(function(checkbox) {
+    checkbox.addEventListener('change', function() {
+      const filterUrl = this.getAttribute('data-filter-url');
+      if (filterUrl) {
+        window.location.href = filterUrl;
+      }
+    });
+  });
+});
+</script>
