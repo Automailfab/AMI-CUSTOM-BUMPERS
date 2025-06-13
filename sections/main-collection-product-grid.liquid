@@ -22,11 +22,18 @@
 {%- endstyle -%}
 
 <div class="section-{{ section.id }}-padding">
-  {%- if section.settings.enable_filtering or section.settings.enable_sorting -%}
+  {%- if section.settings.enable_cascading_filters or section.settings.enable_filtering or section.settings.enable_sorting -%}
     {{ 'component-facets.css' | asset_url | stylesheet_tag }}
+    {%- if section.settings.enable_cascading_filters -%}
+      {{ 'component-cascading-filters.css' | asset_url | stylesheet_tag }}
+      <script src="{{ 'cascading-filters.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
     <script src="{{ 'facets.js' | asset_url }}" defer="defer"></script>
   
     <div class="page-width" id="main-collection-filters" data-id="{{ section.id }}">
+      {%- if section.settings.enable_cascading_filters -%}
+        {% render 'cascading-filters', results: collection, enable_cascading_filters: section.settings.enable_cascading_filters %}
+      {%- endif -%}
       {% render 'facets', results: collection, enable_filtering: section.settings.enable_filtering, enable_sorting: section.settings.enable_sorting, collapse_on_larger_devices: section.settings.collapse_on_larger_devices %}
     </div>
   {%- endif -%}
@@ -149,6 +156,13 @@
     {
       "type": "header",
       "content": "t:sections.main-collection-product-grid.settings.header__1.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_cascading_filters",
+      "default": true,
+      "label": "Enable cascading filters (Make → Model → Placement)",
+      "info": "Show cascading dropdown filters for Make, Model, and Placement. Products must have proper tags: make_[name], model_[make]_[model], placement_[make]_[model]_[placement]"
     },
     {
       "type": "checkbox",

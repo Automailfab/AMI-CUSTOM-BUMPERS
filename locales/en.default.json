@@ -177,6 +177,16 @@
       "sort_by_label": "Sort by:",
       "to": "To",
       "clear_filter": "Clear filter"
+    },
+    "cascading_filters": {
+      "filter_by_label": "Filter by Vehicle",
+      "make_label": "Make",
+      "model_label": "Model", 
+      "placement_label": "Placement",
+      "select_make": "Select Make",
+      "select_model": "Select Model",
+      "select_placement": "Select Placement",
+      "clear_all": "Clear All"
     }
   },
   "templates": {

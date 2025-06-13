@@ -1,0 +1,247 @@
+/**
+ * Cascading Filters CSS
+ * 
+ * Styles for the Make → Model → Placement cascading dropdown filters.
+ * Designed to integrate seamlessly with the Shopify Dawn theme.
+ */
+
+.cascading-filters {
+  margin-bottom: 2rem;
+  border-bottom: 0.1rem solid rgba(var(--color-foreground), 0.08);
+  padding-bottom: 2rem;
+}
+
+.cascading-filters__heading {
+  margin: 0 0 1.5rem 0;
+  color: rgb(var(--color-foreground));
+  font-size: 1.4rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.cascading-filters__wrapper {
+  display: block;
+}
+
+.cascading-filters__dropdowns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.cascading-filters__mobile {
+  display: none;
+}
+
+.cascading-filters__mobile-field {
+  margin-bottom: 1rem;
+}
+
+.cascading-filters__mobile-actions {
+  margin-top: 1rem;
+}
+
+.cascading-filters__field {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.cascading-filters__label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: rgb(var(--color-foreground));
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.cascading-filters__select {
+  appearance: none;
+  background: rgb(var(--color-background));
+  border: 0.1rem solid rgba(var(--color-foreground), 0.2);
+  border-radius: 0.4rem;
+  color: rgb(var(--color-foreground));
+  font-size: 1.4rem;
+  padding: 1rem 3rem 1rem 1rem;
+  width: 100%;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cascading-filters__select:hover {
+  border-color: rgba(var(--color-foreground), 0.4);
+}
+
+.cascading-filters__select:focus {
+  border-color: rgb(var(--color-link));
+  box-shadow: 0 0 0 0.2rem rgba(var(--color-link), 0.2);
+  outline: none;
+}
+
+.cascading-filters__select:disabled {
+  background: rgba(var(--color-foreground), 0.02);
+  border-color: rgba(var(--color-foreground), 0.1);
+  color: rgba(var(--color-foreground), 0.4);
+  cursor: not-allowed;
+}
+
+.cascading-filters__select:disabled + .icon-caret {
+  color: rgba(var(--color-foreground), 0.4);
+}
+
+/* Select dropdown styling to match Dawn theme */
+.cascading-filters__field .select {
+  position: relative;
+}
+
+.cascading-filters__field .select .icon-caret {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: rgb(var(--color-foreground));
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.cascading-filters__actions {
+  display: flex;
+  align-items: end;
+}
+
+.cascading-filters__clear {
+  padding: 1rem 1.5rem;
+  font-size: 1.3rem;
+  white-space: nowrap;
+  min-width: auto;
+}
+
+/* Mobile responsive design */
+@media screen and (max-width: 749px) {
+  .cascading-filters__dropdowns {
+    display: none;
+  }
+  
+  .cascading-filters__mobile {
+    display: block;
+  }
+  
+  .cascading-filters__heading {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+  
+  .cascading-filters__select {
+    font-size: 1.6rem;
+    padding: 1.2rem 3.5rem 1.2rem 1.2rem;
+  }
+  
+  .cascading-filters__field .select .icon-caret {
+    width: 1.4rem;
+    height: 1.4rem;
+    right: 1.2rem;
+  }
+  
+  .cascading-filters__mobile-actions {
+    margin-top: 1rem;
+  }
+  
+  .cascading-filters {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
+/* Integration with existing facets */
+.facets-container .cascading-filters {
+  order: -1; /* Show cascading filters above regular facets */
+}
+
+/* Loading state styles */
+.cascading-filters__select.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.cascading-filters.loading .cascading-filters__dropdowns {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Focus styles for accessibility */
+.cascading-filters__select:focus-visible {
+  border-color: rgb(var(--color-link));
+  box-shadow: 0 0 0 0.3rem rgba(var(--color-link), 0.2);
+  outline: none;
+}
+
+.cascading-filters__clear:focus-visible {
+  box-shadow: 0 0 0 0.3rem rgba(var(--color-foreground), 0.2);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .cascading-filters__select {
+    border-width: 0.2rem;
+    border-color: rgb(var(--color-foreground));
+  }
+  
+  .cascading-filters__select:focus {
+    border-color: rgb(var(--color-link));
+    box-shadow: 0 0 0 0.3rem rgb(var(--color-link));
+  }
+}
+
+/* Print styles */
+@media print {
+  .cascading-filters {
+    display: none;
+  }
+}
+
+/* Integration with Dawn theme's existing select styles */
+.cascading-filters .select__select {
+  appearance: none;
+  background: rgb(var(--color-background));
+  border: 0.1rem solid rgba(var(--color-foreground), 0.2);
+  border-radius: 0.4rem;
+  color: rgb(var(--color-foreground));
+}
+
+/* Animation for smooth dropdown updates */
+.cascading-filters__select {
+  transition: all 0.2s ease;
+}
+
+.cascading-filters__field {
+  transition: opacity 0.2s ease;
+}
+
+.cascading-filters__field.disabled {
+  opacity: 0.6;
+}
+
+/* Custom scrollbar for long dropdown lists */
+.cascading-filters__select {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--color-foreground), 0.3) transparent;
+}
+
+.cascading-filters__select::-webkit-scrollbar {
+  width: 0.6rem;
+}
+
+.cascading-filters__select::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cascading-filters__select::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--color-foreground), 0.3);
+  border-radius: 0.3rem;
+}
+
+.cascading-filters__select::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(var(--color-foreground), 0.5);
+}

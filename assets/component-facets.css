@@ -1,0 +1,264 @@
+/**
+ * Component Facets CSS for Shopify Dawn Theme
+ * 
+ * Basic styling for facets to ensure the theme works properly.
+ * This provides minimal styling that's compatible with the cascading filters.
+ */
+
+.facets-container {
+  display: block;
+}
+
+.facets {
+  display: block;
+  margin-bottom: 2rem;
+}
+
+.facets__form {
+  display: block;
+}
+
+.facets__wrapper {
+  display: block;
+}
+
+.facets__heading {
+  margin: 0 0 1.5rem 0;
+  color: rgb(var(--color-foreground));
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+
+.facets__disclosure {
+  border-bottom: 0.1rem solid rgba(var(--color-foreground), 0.08);
+  margin-bottom: 1rem;
+}
+
+.facets__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  cursor: pointer;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: rgb(var(--color-foreground));
+}
+
+.facets__display {
+  padding-bottom: 1rem;
+}
+
+.facets__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.facets__selected {
+  font-size: 1.2rem;
+  color: rgba(var(--color-foreground), 0.7);
+}
+
+.facets__reset {
+  font-size: 1.2rem;
+  text-decoration: underline;
+  color: rgb(var(--color-link));
+}
+
+.facets__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.facets__item {
+  margin-bottom: 0.5rem;
+}
+
+.facet-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 1.4rem;
+  color: rgb(var(--color-foreground));
+  padding: 0.3rem 0;
+}
+
+.facet-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.facet-checkbox svg {
+  flex-shrink: 0;
+}
+
+.facet-checkbox input[type="checkbox"]:checked + svg + svg {
+  display: block;
+}
+
+.facet-checkbox svg + svg {
+  display: none;
+  position: absolute;
+  margin-left: 0.2rem;
+  margin-top: 0.2rem;
+}
+
+.facet-checkbox--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.facets__price {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.field__input {
+  border: 0.1rem solid rgba(var(--color-foreground), 0.2);
+  border-radius: 0.4rem;
+  padding: 1rem;
+  font-size: 1.4rem;
+  background: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
+}
+
+.field__label {
+  position: absolute;
+  top: -0.7rem;
+  left: 1rem;
+  background: rgb(var(--color-background));
+  padding: 0 0.5rem;
+  font-size: 1.2rem;
+  color: rgba(var(--color-foreground), 0.7);
+}
+
+.field-currency {
+  font-size: 1.4rem;
+  color: rgb(var(--color-foreground));
+}
+
+.active-facets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.active-facets__button {
+  text-decoration: none;
+}
+
+.active-facets__button-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.2);
+  border-radius: 0.4rem;
+  background: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
+  font-size: 1.2rem;
+}
+
+.active-facets__button-remove {
+  font-size: 1.2rem;
+  color: rgb(var(--color-link));
+  text-decoration: underline;
+}
+
+.product-count {
+  margin-bottom: 2rem;
+}
+
+.product-count__text {
+  font-size: 1.4rem;
+  color: rgb(var(--color-foreground));
+  margin: 0;
+}
+
+.loading-overlay__spinner {
+  display: none;
+}
+
+.loading .loading-overlay__spinner {
+  display: block;
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Mobile styles */
+.mobile-facets__wrapper {
+  display: none;
+}
+
+@media screen and (max-width: 749px) {
+  .mobile-facets__wrapper {
+    display: block;
+  }
+  
+  .facets.small-hide {
+    display: none;
+  }
+}
+
+/* Sorting styles */
+.facet-filters {
+  margin-bottom: 2rem;
+}
+
+.facet-filters__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.facet-filters__label {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: rgb(var(--color-foreground));
+  margin: 0;
+}
+
+.facet-filters__sort {
+  appearance: none;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.2);
+  border-radius: 0.4rem;
+  padding: 1rem;
+  background: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.select {
+  position: relative;
+}
+
+.select .icon-caret {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  width: 1.2rem;
+  height: 1.2rem;
+}

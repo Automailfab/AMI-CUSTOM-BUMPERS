@@ -1,0 +1,306 @@
+{% comment %}
+  Cascading filter system for Make → Model → Placement
+  
+  This snippet creates a cascading dropdown filter system where:
+  1. First dropdown shows all available Makes (from product tags/metafields)
+  2. Second dropdown shows Models filtered by selected Make
+  3. Third dropdown shows Placements filtered by selected Model
+  
+  The filters use product tags with a specific naming convention:
+  - Make tags: "make_[make-name]" (e.g., "make_ford", "make_chevrolet")
+  - Model tags: "model_[make-name]_[model-name]" (e.g., "model_ford_f150", "model_chevrolet_silverado")
+  - Placement tags: "placement_[make-name]_[model-name]_[placement-name]" (e.g., "placement_ford_f150_front")
+  
+  Alternative: If using metafields, adjust the data extraction logic below.
+  
+  Accepts:
+  - results: {Object} Collection or Search object
+  - enable_cascading_filters: {Boolean} Show cascading filters when true
+  
+  Usage:
+  {% render 'cascading-filters', results: collection, enable_cascading_filters: true %}
+{% endcomment %}
+
+{%- liquid
+  assign current_make = ''
+  assign current_model = ''  
+  assign current_placement = ''
+  
+  # Extract current filter values from URL parameters
+  if results.url contains 'filter.p.tag='
+    assign url_parts = results.url | split: 'filter.p.tag='
+    for part in url_parts
+      if part contains 'make_'
+        assign make_tag = part | split: '&' | first | url_decode
+        assign current_make = make_tag | remove: 'make_'
+      endif
+      if part contains 'model_'
+        assign model_tag = part | split: '&' | first | url_decode
+        assign current_model = model_tag | split: '_' | last
+      endif
+      if part contains 'placement_'
+        assign placement_tag = part | split: '&' | first | url_decode
+        assign current_placement = placement_tag | split: '_' | last
+      endif
+    endfor
+  endif
+  
+  # Build arrays of available makes, models, and placements from collection products
+  assign all_makes = '' | split: ','
+  assign all_models = '' | split: ','
+  assign all_placements = '' | split: ','
+  assign makes_array = '' | split: ','
+  assign models_for_make = '' | split: ','
+  assign placements_for_model = '' | split: ','
+-%}
+
+{%- comment -%} Extract Make, Model, and Placement data from product tags {%- endcomment -%}
+{%- for product in results.products -%}
+  {%- for tag in product.tags -%}
+    {%- if tag contains 'make_' -%}
+      {%- assign make_name = tag | remove: 'make_' -%}
+      {%- unless all_makes contains make_name -%}
+        {%- assign all_makes = all_makes | append: make_name | append: ',' -%}
+      {%- endunless -%}
+    {%- endif -%}
+    
+    {%- if tag contains 'model_' -%}
+      {%- assign model_parts = tag | split: '_' -%}
+      {%- if model_parts.size >= 3 -%}
+        {%- assign model_make = model_parts[1] -%}
+        {%- assign model_name = model_parts[2] -%}
+        {%- assign model_entry = model_make | append: '|' | append: model_name -%}
+        {%- unless all_models contains model_entry -%}
+          {%- assign all_models = all_models | append: model_entry | append: ',' -%}
+        {%- endunless -%}
+      {%- endif -%}
+    {%- endif -%}
+    
+    {%- if tag contains 'placement_' -%}
+      {%- assign placement_parts = tag | split: '_' -%}
+      {%- if placement_parts.size >= 4 -%}
+        {%- assign placement_make = placement_parts[1] -%}
+        {%- assign placement_model = placement_parts[2] -%}
+        {%- assign placement_name = placement_parts[3] -%}
+        {%- assign placement_entry = placement_make | append: '|' | append: placement_model | append: '|' | append: placement_name -%}
+        {%- unless all_placements contains placement_entry -%}
+          {%- assign all_placements = all_placements | append: placement_entry | append: ',' -%}
+        {%- endunless -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endfor -%}
+
+{%- comment -%} Convert comma-separated strings to arrays {%- endcomment -%}
+{%- assign makes_array = all_makes | split: ',' | uniq | sort -%}
+{%- assign models_array = all_models | split: ',' -%}
+{%- assign placements_array = all_placements | split: ',' -%}
+
+<div class="cascading-filters" id="cascading-filters">
+  <form class="cascading-filters__form" id="CascadingFiltersForm">
+    {%- if results.terms -%}
+      <input type="hidden" name="q" value="{{ results.terms | escape }}">
+      <input name="options[prefix]" type="hidden" value="last">
+    {%- endif -%}
+    
+    <div class="cascading-filters__wrapper">
+      <h2 class="cascading-filters__heading caption-large text-body">
+        {{ 'products.cascading_filters.filter_by_label' | t | default: 'Filter by Vehicle' }}
+      </h2>
+      
+      <div class="cascading-filters__dropdowns">
+        {%- comment -%} Make Dropdown {%- endcomment -%}
+        <div class="cascading-filters__field">
+          <label for="make-select" class="cascading-filters__label">
+            {{ 'products.cascading_filters.make_label' | t | default: 'Make' }}
+          </label>
+          <div class="select">
+            <select name="make" id="make-select" class="cascading-filters__select" data-filter-type="make">
+              <option value="">{{ 'products.cascading_filters.select_make' | t | default: 'Select Make' }}</option>
+              {%- for make in makes_array -%}
+                {%- unless make == blank -%}
+                  <option value="{{ make | escape }}"{% if current_make == make %} selected{% endif %}>
+                    {{ make | capitalize }}
+                  </option>
+                {%- endunless -%}
+              {%- endfor -%}
+            </select>
+            {% render 'icon-caret' %}
+          </div>
+        </div>
+        
+        {%- comment -%} Model Dropdown {%- endcomment -%}
+        <div class="cascading-filters__field">
+          <label for="model-select" class="cascading-filters__label">
+            {{ 'products.cascading_filters.model_label' | t | default: 'Model' }}
+          </label>
+          <div class="select">
+            <select name="model" id="model-select" class="cascading-filters__select" data-filter-type="model" disabled>
+              <option value="">{{ 'products.cascading_filters.select_model' | t | default: 'Select Model' }}</option>
+              {%- if current_make != blank -%}
+                {%- for model_entry in models_array -%}
+                  {%- assign model_parts = model_entry | split: '|' -%}
+                  {%- if model_parts.size >= 2 and model_parts[0] == current_make -%}
+                    <option value="{{ model_parts[1] | escape }}"{% if current_model == model_parts[1] %} selected{% endif %}>
+                      {{ model_parts[1] | capitalize }}
+                    </option>
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+            </select>
+            {% render 'icon-caret' %}
+          </div>
+        </div>
+        
+        {%- comment -%} Placement Dropdown {%- endcomment -%}
+        <div class="cascading-filters__field">
+          <label for="placement-select" class="cascading-filters__label">
+            {{ 'products.cascading_filters.placement_label' | t | default: 'Placement' }}
+          </label>
+          <div class="select">
+            <select name="placement" id="placement-select" class="cascading-filters__select" data-filter-type="placement" disabled>
+              <option value="">{{ 'products.cascading_filters.select_placement' | t | default: 'Select Placement' }}</option>
+              {%- if current_make != blank and current_model != blank -%}
+                {%- for placement_entry in placements_array -%}
+                  {%- assign placement_parts = placement_entry | split: '|' -%}
+                  {%- if placement_parts.size >= 3 and placement_parts[0] == current_make and placement_parts[1] == current_model -%}
+                    <option value="{{ placement_parts[2] | escape }}"{% if current_placement == placement_parts[2] %} selected{% endif %}>
+                      {{ placement_parts[2] | capitalize }}
+                    </option>
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+            </select>
+            {% render 'icon-caret' %}
+          </div>
+        </div>
+        
+        {%- comment -%} Clear Filters Button {%- endcomment -%}
+        <div class="cascading-filters__actions">
+          <button type="button" id="clear-cascading-filters" class="cascading-filters__clear button button--tertiary">
+            {{ 'products.cascading_filters.clear_all' | t | default: 'Clear All' }}
+          </button>
+        </div>
+      </div>
+      
+      {%- comment -%} Mobile version with stacked layout {%- endcomment -%}
+      <div class="cascading-filters__mobile medium-hide large-up-hide">
+        <div class="cascading-filters__mobile-field">
+          <label for="make-select-mobile" class="cascading-filters__label">
+            {{ 'products.cascading_filters.make_label' | t | default: 'Make' }}
+          </label>
+          <div class="select">
+            <select name="make" id="make-select-mobile" class="cascading-filters__select" data-filter-type="make">
+              <option value="">{{ 'products.cascading_filters.select_make' | t | default: 'Select Make' }}</option>
+              {%- for make in makes_array -%}
+                {%- unless make == blank -%}
+                  <option value="{{ make | escape }}"{% if current_make == make %} selected{% endif %}>
+                    {{ make | capitalize }}
+                  </option>
+                {%- endunless -%}
+              {%- endfor -%}
+            </select>
+            {% render 'icon-caret' %}
+          </div>
+        </div>
+        
+        <div class="cascading-filters__mobile-field">
+          <label for="model-select-mobile" class="cascading-filters__label">
+            {{ 'products.cascading_filters.model_label' | t | default: 'Model' }}
+          </label>
+          <div class="select">
+            <select name="model" id="model-select-mobile" class="cascading-filters__select" data-filter-type="model" disabled>
+              <option value="">{{ 'products.cascading_filters.select_model' | t | default: 'Select Model' }}</option>
+              {%- if current_make != blank -%}
+                {%- for model_entry in models_array -%}
+                  {%- assign model_parts = model_entry | split: '|' -%}
+                  {%- if model_parts.size >= 2 and model_parts[0] == current_make -%}
+                    <option value="{{ model_parts[1] | escape }}"{% if current_model == model_parts[1] %} selected{% endif %}>
+                      {{ model_parts[1] | capitalize }}
+                    </option>
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+            </select>
+            {% render 'icon-caret' %}
+          </div>
+        </div>
+        
+        <div class="cascading-filters__mobile-field">
+          <label for="placement-select-mobile" class="cascading-filters__label">
+            {{ 'products.cascading_filters.placement_label' | t | default: 'Placement' }}
+          </label>
+          <div class="select">
+            <select name="placement" id="placement-select-mobile" class="cascading-filters__select" data-filter-type="placement" disabled>
+              <option value="">{{ 'products.cascading_filters.select_placement' | t | default: 'Select Placement' }}</option>
+              {%- if current_make != blank and current_model != blank -%}
+                {%- for placement_entry in placements_array -%}
+                  {%- assign placement_parts = placement_entry | split: '|' -%}
+                  {%- if placement_parts.size >= 3 and placement_parts[0] == current_make and placement_parts[1] == current_model -%}
+                    <option value="{{ placement_parts[2] | escape }}"{% if current_placement == placement_parts[2] %} selected{% endif %}>
+                      {{ placement_parts[2] | capitalize }}
+                    </option>
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+            </select>
+            {% render 'icon-caret' %}
+          </div>
+        </div>
+        
+        <div class="cascading-filters__mobile-actions">
+          <button type="button" id="clear-cascading-filters-mobile" class="cascading-filters__clear button button--tertiary">
+            {{ 'products.cascading_filters.clear_all' | t | default: 'Clear All' }}
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    {%- comment -%} Hidden data for JavaScript {%- endcomment -%}
+    <script type="application/json" id="cascading-filters-data">
+      {
+        "makes": [
+          {%- for make in makes_array -%}
+            {%- unless make == blank -%}
+              "{{ make | escape }}"{% unless forloop.last %},{% endunless %}
+            {%- endunless -%}
+          {%- endfor -%}
+        ],
+        "models": {
+          {%- for make in makes_array -%}
+            {%- unless make == blank -%}
+              "{{ make | escape }}": [
+                {%- for model_entry in models_array -%}
+                  {%- assign model_parts = model_entry | split: '|' -%}
+                  {%- if model_parts.size >= 2 and model_parts[0] == make -%}
+                    "{{ model_parts[1] | escape }}"{% unless forloop.last %},{% endunless %}
+                  {%- endif -%}
+                {%- endfor -%}
+              ]{% unless forloop.last %},{% endunless %}
+            {%- endunless -%}
+          {%- endfor -%}
+        },
+        "placements": {
+          {%- for make in makes_array -%}
+            {%- unless make == blank -%}
+              {%- for model_entry in models_array -%}
+                {%- assign model_parts = model_entry | split: '|' -%}
+                {%- if model_parts.size >= 2 and model_parts[0] == make -%}
+                  "{{ make | escape }}_{{ model_parts[1] | escape }}": [
+                    {%- for placement_entry in placements_array -%}
+                      {%- assign placement_parts = placement_entry | split: '|' -%}
+                      {%- if placement_parts.size >= 3 and placement_parts[0] == make and placement_parts[1] == model_parts[1] -%}
+                        "{{ placement_parts[2] | escape }}"{% unless forloop.last %},{% endunless %}
+                      {%- endif -%}
+                    {%- endfor -%}
+                  ]{% unless forloop.last %},{% endunless %}
+                {%- endif -%}
+              {%- endfor -%}
+              {% unless forloop.last %},{% endunless %}
+            {%- endunless -%}
+          {%- endfor -%}
+        }
+      }
+    </script>
+  </form>
+</div>
