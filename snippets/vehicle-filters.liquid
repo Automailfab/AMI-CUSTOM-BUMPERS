@@ -1,0 +1,134 @@
+{% comment %}
+    Renders custom vehicle filters for Make, Model, and Placement
+
+    Accepts:
+    - products: {Array} Collection products array
+    - section_id: {String} Section ID for unique identifiers
+
+    Usage:
+    {% render 'vehicle-filters', products: collection.products, section_id: section.id %}
+{% endcomment %}
+
+{%- liquid
+  assign makes = ''
+  assign models = ''
+  assign placements = ''
+  
+  for product in products
+    assign make = product.metafields.vehicle.make.value
+    assign model = product.metafields.vehicle.model.value
+    assign placement = product.metafields.vehicle.placement.value
+    
+    if make and make != blank
+      unless makes contains make
+        if makes == blank
+          assign makes = make
+        else
+          assign makes = makes | append: ',' | append: make
+        endif
+      endunless
+    endif
+    
+    if model and model != blank
+      unless models contains model
+        if models == blank
+          assign models = model
+        else
+          assign models = models | append: ',' | append: model
+        endif
+      endunless
+    endif
+    
+    if placement and placement != blank
+      unless placements contains placement
+        if placements == blank
+          assign placements = placement
+        else
+          assign placements = placements | append: ',' | append: placement
+        endif
+      endunless
+    endif
+  endfor
+  
+  assign makes_array = makes | split: ','
+  assign models_array = models | split: ','
+  assign placements_array = placements | split: ','
+-%}
+
+<div class="vehicle-filters" id="vehicle-filters-{{ section_id }}">
+  <div class="vehicle-filters__wrapper">
+    <h3 class="vehicle-filters__heading">Filter by Vehicle</h3>
+    
+    <div class="vehicle-filters__row">
+      {%- if makes_array.size > 0 -%}
+        <div class="vehicle-filters__field">
+          <label for="vehicle-make-{{ section_id }}" class="vehicle-filters__label">Make</label>
+          <div class="select">
+            <select name="vehicle-make" id="vehicle-make-{{ section_id }}" class="vehicle-filters__select select__select">
+              <option value="">All Makes</option>
+              {%- for make in makes_array -%}
+                {%- assign make_trimmed = make | strip -%}
+                {%- if make_trimmed != blank -%}
+                  <option value="{{ make_trimmed | escape }}">{{ make_trimmed | escape }}</option>
+                {%- endif -%}
+              {%- endfor -%}
+            </select>
+            <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-caret" viewBox="0 0 10 6">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M9.354.146a.5.5 0 00-.708 0L5 3.793 1.354.146a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor"/>
+            </svg>
+          </div>
+        </div>
+      {%- endif -%}
+      
+      {%- if models_array.size > 0 -%}
+        <div class="vehicle-filters__field">
+          <label for="vehicle-model-{{ section_id }}" class="vehicle-filters__label">Model</label>
+          <div class="select">
+            <select name="vehicle-model" id="vehicle-model-{{ section_id }}" class="vehicle-filters__select select__select">
+              <option value="">All Models</option>
+              {%- for model in models_array -%}
+                {%- assign model_trimmed = model | strip -%}
+                {%- if model_trimmed != blank -%}
+                  <option value="{{ model_trimmed | escape }}">{{ model_trimmed | escape }}</option>
+                {%- endif -%}
+              {%- endfor -%}
+            </select>
+            <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-caret" viewBox="0 0 10 6">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M9.354.146a.5.5 0 00-.708 0L5 3.793 1.354.146a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor"/>
+            </svg>
+          </div>
+        </div>
+      {%- endif -%}
+      
+      {%- if placements_array.size > 0 -%}
+        <div class="vehicle-filters__field">
+          <label for="vehicle-placement-{{ section_id }}" class="vehicle-filters__label">Placement</label>
+          <div class="select">
+            <select name="vehicle-placement" id="vehicle-placement-{{ section_id }}" class="vehicle-filters__select select__select">
+              <option value="">All Placements</option>
+              {%- for placement in placements_array -%}
+                {%- assign placement_trimmed = placement | strip -%}
+                {%- if placement_trimmed != blank -%}
+                  <option value="{{ placement_trimmed | escape }}">{{ placement_trimmed | escape }}</option>
+                {%- endif -%}
+              {%- endfor -%}
+            </select>
+            <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-caret" viewBox="0 0 10 6">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M9.354.146a.5.5 0 00-.708 0L5 3.793 1.354.146a.5.5 0 00-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 000-.708z" fill="currentColor"/>
+            </svg>
+          </div>
+        </div>
+      {%- endif -%}
+      
+      <div class="vehicle-filters__field">
+        <button type="button" class="vehicle-filters__clear button button--tertiary" id="vehicle-clear-{{ section_id }}">
+          Clear Filters
+        </button>
+      </div>
+    </div>
+    
+    <div class="vehicle-filters__results" id="vehicle-results-{{ section_id }}">
+      <span class="vehicle-filters__count"></span>
+    </div>
+  </div>
+</div>

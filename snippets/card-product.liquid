@@ -28,7 +28,11 @@
       assign ratio = 1
     endif
   -%}
-  <div class="card-wrapper underline-links-hover">
+  <div class="card-wrapper underline-links-hover"
+    {%- if card_product.metafields.vehicle.make.value -%} data-vehicle-make="{{ card_product.metafields.vehicle.make.value | escape }}"{% endif %}
+    {%- if card_product.metafields.vehicle.model.value -%} data-vehicle-model="{{ card_product.metafields.vehicle.model.value | escape }}"{% endif %}
+    {%- if card_product.metafields.vehicle.placement.value -%} data-vehicle-placement="{{ card_product.metafields.vehicle.placement.value | escape }}"{% endif %}
+  >
     <div class="card
       card--{{ settings.card_style }}
       {% if card_product.featured_media %} card--media{% else %} card--text{% endif %}
@@ -147,7 +151,11 @@
     </div>
   </div>
 {%- else -%}
-  <div class="card-wrapper underline-links-hover">
+  <div class="card-wrapper underline-links-hover"
+    {%- if card_product.metafields.vehicle.make.value -%} data-vehicle-make="{{ card_product.metafields.vehicle.make.value | escape }}"{% endif %}
+    {%- if card_product.metafields.vehicle.model.value -%} data-vehicle-model="{{ card_product.metafields.vehicle.model.value | escape }}"{% endif %}
+    {%- if card_product.metafields.vehicle.placement.value -%} data-vehicle-placement="{{ card_product.metafields.vehicle.placement.value | escape }}"{% endif %}
+  >
     <div class="card
       card--{{ settings.card_style }}
       card--text

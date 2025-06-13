@@ -31,6 +31,15 @@
     </div>
   {%- endif -%}
   
+  {%- if section.settings.enable_vehicle_filters -%}
+    {{ 'vehicle-filters.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'vehicle-filters.js' | asset_url }}" defer="defer"></script>
+    
+    <div class="page-width">
+      {% render 'vehicle-filters', products: collection.products, section_id: section.id %}
+    </div>
+  {%- endif -%}
+  
   <div id="ProductGridContainer">
     {%- paginate collection.products by section.settings.products_per_page -%}
       {%- if collection.products.size == 0 -%}
@@ -156,6 +165,13 @@
       "default": true,
       "label": "t:sections.main-collection-product-grid.settings.enable_filtering.label",
       "info": "t:sections.main-collection-product-grid.settings.enable_filtering.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_vehicle_filters",
+      "default": false,
+      "label": "Enable Vehicle Filters",
+      "info": "Show custom filters for vehicle Make, Model, and Placement based on product metafields"
     },
     {
       "type": "checkbox",
